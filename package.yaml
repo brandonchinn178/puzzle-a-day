@@ -1,0 +1,17 @@
+name: puzzle-a-day
+version: 0.0.0
+
+ghc-options: -Wall -Werror -Wcompat
+
+library:
+  source-dirs: src/
+  dependencies:
+    - array
+    - base
+
+executable:
+  main: app/Main.hs
+  dependencies:
+    - base
+    - puzzle-a-day
+    - time
