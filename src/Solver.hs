@@ -43,7 +43,7 @@ type PiecesSeen = Pieces Bool
 
 solve :: Date -> BoardPieces
 solve date =
-  case (!! 8) $ iterate addNextPiece [(emptyBoard, emptyPiecesSeen)] of
+  case (!! 8) $ iterate (concatMap addNextPiece) [(emptyBoard, emptyPiecesSeen)] of
     (board, _) : _ -> board
     [] -> error "Found no solution"
   where
@@ -59,20 +59,19 @@ solve date =
         , piece7 = False
         }
 
-    -- Add one more piece to every board
-    addNextPiece :: [(BoardPieces, PiecesSeen)] -> [(BoardPieces, PiecesSeen)]
-    addNextPiece states =
-      flip concatMap states $ \(board, seenPieces) ->
-        flip concatMap piecesFields $ \PiecesField{..} ->
-          let
-            seenPiece = getPiece seenPieces
-            pieceOrientations = getPiece allPieceOrientations
-          in if seenPiece
-              then []
-              else
-                [ (board', setPiece True seenPieces)
-                | Just board' <- map (tryAddPiece date board) pieceOrientations
-                ]
+    -- Add one more piece to the board
+    addNextPiece :: (BoardPieces, PiecesSeen) -> [(BoardPieces, PiecesSeen)]
+    addNextPiece (board, seenPieces) =
+      flip concatMap piecesFields $ \PiecesField{..} ->
+        let
+          seenPiece = getPiece seenPieces
+          pieceOrientations = getPiece allPieceOrientations
+        in if seenPiece
+            then []
+            else
+              [ (board', setPiece True seenPieces)
+              | Just board' <- map (tryAddPiece date board) pieceOrientations
+              ]
 
 -- | Try adding the given oriented piece to the given board
 tryAddPiece :: Date -> BoardPieces -> PieceRelative -> Maybe BoardPieces
