@@ -29,3 +29,10 @@ tests:
       - tasty
       - tasty-hunit
 
+benchmarks:
+  puzzle-a-day-benchmarks:
+    main: bench/Main.hs
+    dependencies:
+      - base
+      - criterion
+      - puzzle-a-day

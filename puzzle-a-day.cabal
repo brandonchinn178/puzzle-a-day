@@ -54,3 +54,17 @@ test-suite puzzle-a-day-tests
     , tasty
     , tasty-hunit
   default-language: Haskell2010
+
+benchmark puzzle-a-day-benchmarks
+  type: exitcode-stdio-1.0
+  main-is: bench/Main.hs
+  other-modules:
+      Paths_puzzle_a_day
+  default-extensions:
+      ImportQualifiedPost
+  ghc-options: -Wall -Werror -Wcompat
+  build-depends:
+      base
+    , criterion
+    , puzzle-a-day
+  default-language: Haskell2010
