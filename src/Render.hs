@@ -8,7 +8,7 @@ import Control.Monad.ST (ST, runST)
 import Data.Array (Array, (!))
 import Data.Array.ST (STArray, freeze, newArray, readArray, writeArray)
 
-import SolverDFS (
+import Board (
   BoardPieces (..),
   Coordinate (..),
   PieceAbsolute (..),
