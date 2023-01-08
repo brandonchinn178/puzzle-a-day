@@ -17,5 +17,6 @@ executable:
   ghc-options: -threaded -O2
   dependencies:
     - base
+    - optparse-applicative
     - puzzle-a-day
     - time

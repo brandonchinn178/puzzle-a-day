@@ -35,6 +35,7 @@ executable puzzle-a-day
   ghc-options: -Wall -Werror -Wcompat -threaded -O2
   build-depends:
       base
+    , optparse-applicative
     , puzzle-a-day
     , time
   default-language: Haskell2010
