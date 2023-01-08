@@ -27,4 +27,4 @@ main = do
   printf "\n============= Solving for %s %d =============\n\n" (renderMonth month) day
 
   let solution = solve (month, day)
-  putStrLn (renderBoard solution)
+  solution `seq` putStrLn (renderBoard solution)
