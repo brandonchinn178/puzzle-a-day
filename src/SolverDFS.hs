@@ -3,7 +3,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Solver (
+module SolverDFS (
   solve,
 
   -- * Helpers

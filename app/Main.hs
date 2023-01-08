@@ -5,7 +5,7 @@ import System.Environment (getArgs)
 import Text.Read (readMaybe)
 import Text.Printf (printf)
 
-import Solver (solve)
+import SolverDFS qualified as DFS
 import Render (renderBoard, renderMonth)
 
 main :: IO ()
@@ -26,5 +26,5 @@ main = do
 
   printf "\n============= Solving for %s %d =============\n\n" (renderMonth month) day
 
-  let solution = solve (month, day)
+  let solution = DFS.solve (month, day)
   putStrLn (renderBoard solution)

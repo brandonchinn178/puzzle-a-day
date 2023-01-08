@@ -12,7 +12,7 @@ library
   exposed-modules:
       PieceData
       Render
-      Solver
+      SolverDFS
   other-modules:
       Paths_puzzle_a_day
   hs-source-dirs:
