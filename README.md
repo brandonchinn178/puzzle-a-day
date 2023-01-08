@@ -7,4 +7,7 @@ stack run
 
 # run specifically for March 15
 stack run 3 15
+
+# run with the genetic algorithm
+stack run -- --solver genetic
 ```

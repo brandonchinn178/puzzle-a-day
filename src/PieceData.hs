@@ -5,14 +5,18 @@
 
 module PieceData (
   Pieces (..),
+  zipWithPieces,
+  zipWithPiecesM,
   PiecesField (..),
   piecesFields,
+  fromPieces,
   PieceRelative (..),
   Vector (..),
   allPieceOrientations,
 ) where
 
 import Data.Containers.ListUtils (nubOrd)
+import Data.Functor.Identity (runIdentity)
 import Data.Set (Set)
 import Data.Set qualified as Set
 
@@ -27,6 +31,21 @@ data Pieces a = Pieces
   , piece7 :: a
   }
   deriving (Show, Eq, Functor, Foldable, Traversable)
+
+zipWithPieces :: (a -> b -> c) -> Pieces a -> Pieces b -> Pieces c
+zipWithPieces f as bs = runIdentity $ zipWithPiecesM (\a b -> pure (f a b)) as bs
+
+zipWithPiecesM :: Applicative f => (a -> b -> f c) -> Pieces a -> Pieces b -> f (Pieces c)
+zipWithPiecesM f as bs =
+  Pieces
+    <$> f (piece0 as) (piece0 bs)
+    <*> f (piece1 as) (piece1 bs)
+    <*> f (piece2 as) (piece2 bs)
+    <*> f (piece3 as) (piece3 bs)
+    <*> f (piece4 as) (piece4 bs)
+    <*> f (piece5 as) (piece5 bs)
+    <*> f (piece6 as) (piece6 bs)
+    <*> f (piece7 as) (piece7 bs)
 
 data PiecesField = PiecesField
   { getPiece :: forall a. Pieces a -> a
@@ -44,6 +63,9 @@ piecesFields =
   , PiecesField piece6 (\a pieces -> pieces{piece6 = a})
   , PiecesField piece7 (\a pieces -> pieces{piece7 = a})
   ]
+
+fromPieces :: Pieces a -> [a]
+fromPieces pieces = map (($ pieces) . getPiece) piecesFields
 
 -- | A piece represented as a list of vectors relative to some starting point.
 newtype PieceRelative = PieceRelative {unPieceRelative :: Set Vector}

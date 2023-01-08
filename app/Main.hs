@@ -9,6 +9,7 @@ import Text.Read (readMaybe)
 import Text.Printf (printf)
 
 import SolverDFS qualified as DFS
+import SolverGenetic qualified as Genetic
 import Render (renderBoard, renderMonth)
 
 data CLIOptions = CLIOptions
@@ -17,7 +18,7 @@ data CLIOptions = CLIOptions
   , cliAlgorithm :: Algorithm
   }
 
-data Algorithm = DFS
+data Algorithm = DFS | Genetic
 
 parseCLIOptions :: ParserInfo CLIOptions
 parseCLIOptions = info (options <**> helper) fullDesc
@@ -52,6 +53,7 @@ parseCLIOptions = info (options <**> helper) fullDesc
 
     parseAlgorithm = \case
       "dfs" -> Just DFS
+      "genetic" -> Just Genetic
       _ -> Nothing
 
 main :: IO ()
@@ -70,3 +72,19 @@ main = do
       printf "\n============= Solving for %s %d =============\n\n" (renderMonth month) day
       let solution = DFS.solve (month, day)
       putStrLn (renderBoard solution)
+    Genetic -> do
+      let solution =
+            Genetic.solve
+              Genetic.SolveOptions
+                { targetDate = (month, day)
+                , logProgress = \generation board fitness -> do
+                    clearScreen
+                    printf "============= Solving for %s %d =============\n\n" (renderMonth month) day
+                    printf "Generation: %d\n" generation
+                    printf "Fitness: %d\n\n" fitness
+                    putStrLn $ renderBoard board
+                }
+      solution `seq` putStrLn "Solved!"
+
+clearScreen :: IO ()
+clearScreen = putStr "\ESCc"
