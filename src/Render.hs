@@ -8,9 +8,14 @@ import Control.Monad.ST (ST, runST)
 import Data.Array (Array, (!))
 import Data.Array.ST (STArray, freeze, newArray, readArray, writeArray)
 
-import Solver (Col (..), CompletedBoard (..), Coordinate, Row (..))
+import Solver (
+  BoardPieces (..),
+  Coordinate (..),
+  PieceAbsolute (..),
+  isInBoard,
+ )
 
-renderBoard :: CompletedBoard -> String
+renderBoard :: BoardPieces -> String
 renderBoard board =
   unlines $
     topBorder : concat
@@ -34,7 +39,7 @@ renderBoard board =
       concat
         [ start ++ f (x, y) ++ end
         | x <- [0..6]
-        , isInBoard (x, y)
+        , isInBoard' (x, y)
         , let
             cellInfo = boardInfo ! (x, y)
             start = if x == 0 then "│" else ""
@@ -53,7 +58,7 @@ renderBoard board =
       concat
         [ start ++ concatRep 5 (if hasBottomBorder cellInfo then "─" else " ") ++ "┼"
         | x <- [0..6]
-        , isInBoard (x, y) || isInBoard (x, y + 1)
+        , isInBoard' (x, y) || isInBoard' (x, y + 1)
         , let
             cellInfo = boardInfo ! (x, y)
             start = if x == 0 then "┼" else ""
@@ -80,8 +85,8 @@ data CellInfo = CellInfo
   , isVisible :: Bool
   }
 
-toBoardInfo :: CompletedBoard -> BoardInfo Array
-toBoardInfo (CompletedBoard pieces) =
+toBoardInfo :: BoardPieces -> BoardInfo Array
+toBoardInfo (BoardPieces pieces) =
   runST $ do
     boardInfo <- newArray ((0, 0), (6, 6)) initialCellInfo
     mapM_ (updateBoardInfo boardInfo) pieces
@@ -94,30 +99,26 @@ toBoardInfo (CompletedBoard pieces) =
         , isVisible = True
         }
 
-    updateBoardInfo :: BoardInfo (STArray s) -> [Coordinate] -> ST s ()
-    updateBoardInfo boardInfo pieceCoordinates = do
-      forM_ pieceCoordinates $ \(Col x, Row y) -> do
-        -- mark all coordinates as not visible
-        modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{isVisible = False}
+    updateBoardInfo :: BoardInfo (STArray s) -> PieceAbsolute -> ST s ()
+    updateBoardInfo boardInfo (PieceAbsolute pieceCoordinates) = do
+      forM_ pieceCoordinates $ \(Coordinate (x, y)) ->
+        when (isInBoard' (x, y)) $ do
+          -- mark coordinate as not visible
+          modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{isVisible = False}
 
-        -- update borders
-        forM_ pieceCoordinates $ \(Col x', Row y') -> do
-          when (x' - x == 1 && y' - y == 0) $
-            modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{hasRightBorder = False}
-          when (y' - y == 1 && x' - x == 0) $
-            modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{hasBottomBorder = False}
+          -- update borders
+          forM_ pieceCoordinates $ \(Coordinate (x', y')) -> do
+            when (x' - x == 1 && y' - y == 0) $
+              modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{hasRightBorder = False}
+            when (y' - y == 1 && x' - x == 0) $
+              modifyArray boardInfo (x, y) $ \cellInfo -> cellInfo{hasBottomBorder = False}
 
     modifyArray boardInfo coord f = do
       cellInfo <- readArray boardInfo coord
       writeArray boardInfo coord (f cellInfo)
 
-isInBoard :: (Int, Int) -> Bool
-isInBoard (x, y) =
-  or
-    [ (0 <= y && y <= 1) && (0 <= x && x <= 5)
-    , (2 <= y && y <= 5) && (0 <= x && x <= 6)
-    , y == 6 && (0 <= x && x <= 2)
-    ]
+isInBoard' :: (Int, Int) -> Bool
+isInBoard' = isInBoard . Coordinate
 
 {----- Utilities -----}
 
