@@ -19,3 +19,13 @@ executable:
     - base
     - puzzle-a-day
     - time
+
+tests:
+  puzzle-a-day-tests:
+    main: test/Main.hs
+    dependencies:
+      - base
+      - puzzle-a-day
+      - tasty
+      - tasty-hunit
+

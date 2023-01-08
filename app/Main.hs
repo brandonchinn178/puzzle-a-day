@@ -26,5 +26,6 @@ main = do
 
   printf "\n============= Solving for %s %d =============\n\n" (renderMonth month) day
 
-  let solution = solve (month, day)
-  solution `seq` putStrLn (renderBoard solution)
+  case solve (month, day) of
+    Just solution -> solution `seq` putStrLn (renderBoard solution)
+    Nothing -> error "No solution found"

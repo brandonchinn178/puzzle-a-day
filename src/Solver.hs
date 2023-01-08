@@ -34,11 +34,11 @@ type Date = (Int, Int)
 
 type PiecesSeen = Pieces Bool
 
-solve :: Date -> BoardPieces
+solve :: Date -> Maybe BoardPieces
 solve date =
   case (!! 8) $ iterate (concatMap addNextPiece) [(emptyBoard, emptyPiecesSeen)] of
-    (board, _) : _ -> board
-    [] -> error "Found no solution"
+    (board, _) : _ -> Just board
+    [] -> Nothing
   where
     emptyPiecesSeen =
       Pieces
